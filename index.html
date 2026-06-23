@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COCA GUSSS — Energia em estado líquido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#070707;
+    --black2:#121012;
+    --black3:#1b171a;
+    --red:#E10600;
+    --red-bright:#FF2A1F;
+    --red-deep:#6e0500;
+    --silver:#a9a3a3;
+    --white:#f5efec;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black);
+    color:var(--white);
+    font-family:'Space Grotesk', sans-serif;
+    overflow-x:hidden;
+    cursor:default;
+  }
+  ::selection{background:var(--red);color:#fff;}
+
+  .display{font-family:'Audiowide', sans-serif;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ambient grain */
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:40;
+    opacity:0.04;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
+    animation:grainShift 1.2s steps(4) infinite;
+  }
+  @keyframes grainShift{
+    0%{transform:translate(0,0);} 25%{transform:translate(-1%,1%);}
+    50%{transform:translate(1%,-1%);} 75%{transform:translate(-1%,-1%);}
+    100%{transform:translate(0,0);}
+  }
+
+  /* floating ambient blobs */
+  .blob{
+    position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;opacity:0.5;
+  }
+  .blob1{width:420px;height:420px;background:rgba(225,6,0,0.22);top:-120px;left:-100px;animation:blobMove1 18s ease-in-out infinite;}
+  .blob2{width:340px;height:340px;background:rgba(255,42,31,0.16);bottom:-80px;right:-60px;animation:blobMove2 22s ease-in-out infinite;}
+  .blob3{width:260px;height:260px;background:rgba(225,6,0,0.14);top:40%;left:60%;animation:blobMove3 26s ease-in-out infinite;}
+  @keyframes blobMove1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(120px,80px) scale(1.3);}}
+  @keyframes blobMove2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-100px,-60px) scale(1.2);}}
+  @keyframes blobMove3{0%,100%{transform:translate(0,0) scale(1) rotate(0deg);}50%{transform:translate(-80px,60px) scale(1.4) rotate(40deg);}}
+
+  /* cursor glow */
+  .glow-cursor{
+    position:fixed;width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle, rgba(225,6,0,0.16), transparent 70%);
+    pointer-events:none;z-index:0;transform:translate(-50%,-50%);
+    transition:opacity .3s;
+  }
+
+  /* NAV */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 5%;
+    backdrop-filter:blur(10px);
+    background:linear-gradient(to bottom, rgba(7,7,7,0.85), transparent);
+    animation:navDrop 0.8s cubic-bezier(.16,1,.3,1) backwards;
+  }
+  @keyframes navDrop{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .logo{font-size:1.3rem;letter-spacing:2px;}
+  .logo span{
+    color:var(--red-bright);
+    display:inline-block;
+    animation:dotPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes dotPulse{0%,100%{transform:scale(1);text-shadow:0 0 6px var(--red-bright);}50%{transform:scale(1.5);text-shadow:0 0 16px var(--red-bright);}}
+  .nav-links{display:flex;gap:36px;font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;}
+  .nav-links a{position:relative;opacity:0.8;transition:opacity .25s;}
+  .nav-links a:hover{opacity:1;}
+  .nav-links a::after{
+    content:'';position:absolute;left:0;bottom:-6px;width:0;height:1px;background:var(--red-bright);
+    transition:width .3s;
+  }
+  .nav-links a:hover::after{width:100%;}
+  .nav-cta{
+    border:1px solid var(--red);padding:9px 20px;font-size:0.78rem;
+    letter-spacing:1.5px;text-transform:uppercase;border-radius:30px;
+    transition:background .3s, box-shadow .3s, transform .3s;
+    position:relative;overflow:hidden;
+  }
+  .nav-cta::before{
+    content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform:skewX(-20deg);animation:sweep 2.6s ease-in-out infinite;
+  }
+  @keyframes sweep{0%{left:-60%;}100%{left:140%;}}
+  .nav-cta:hover{background:var(--red);box-shadow:0 0 24px rgba(225,6,0,0.6);transform:translateY(-2px);}
+
+  /* HERO */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:120px 5% 60px;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(225,6,0,0.18), transparent 60%),
+      var(--black);
+    overflow:hidden;
+  }
+  .grid-bg{
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(225,6,0,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(225,6,0,0.07) 1px, transparent 1px);
+    background-size:48px 48px;
+    transform:perspective(500px) rotateX(60deg) translateY(0%);
+    transform-origin:bottom;
+    height:60%;
+    bottom:0;
+    left:0;right:0;
+    top:auto;
+    mask-image:linear-gradient(to top, black, transparent);
+    animation:gridMove 6s linear infinite;
+  }
+  @keyframes gridMove{
+    from{background-position:0 0;}
+    to{background-position:0 48px;}
+  }
+  .hero-inner{
+    position:relative;z-index:2;
+    display:flex;align-items:center;justify-content:space-between;
+    width:100%;max-width:1280px;gap:40px;flex-wrap:wrap;
+  }
+  .hero-copy{max-width:560px;}
+  .eyebrow{
+    font-size:0.78rem;letter-spacing:3px;text-transform:uppercase;
+    color:var(--red-bright);margin-bottom:22px;display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{
+    content:'';width:8px;height:8px;border-radius:50%;background:var(--red-bright);
+    box-shadow:0 0 12px var(--red-bright);animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+  h1.hero-title{
+    font-size:clamp(3rem, 8vw, 6rem);
+    line-height:0.98;letter-spacing:1px;
+    margin-bottom:26px;
+  }
+  h1.hero-title .line{display:block;overflow:hidden;}
+  h1.hero-title .line span{
+    display:inline-block;
+    animation:riseUp 0.9s cubic-bezier(.16,1,.3,1) backwards;
+  }
+  h1.hero-title .line:nth-child(1) span{animation-delay:0.1s;}
+  h1.hero-title .line:nth-child(2) span{
+    animation-delay:0.25s,2.2s;
+    animation-name:riseUp,glitch;
+    color:var(--red-bright);text-shadow:0 0 40px rgba(255,42,31,0.5);
+    animation-duration:0.9s,0.25s;
+    animation-iteration-count:1,infinite;
+    position:relative;
+  }
+  @keyframes glitch{
+    0%,100%{transform:translate(0,0);text-shadow:0 0 40px rgba(255,42,31,0.5);}
+    20%{transform:translate(-2px,1px);text-shadow:2px 0 var(--red-bright),-2px 0 #00eaff;}
+    40%{transform:translate(2px,-1px);text-shadow:-2px 0 var(--red-bright),2px 0 #00eaff;}
+    60%{transform:translate(-1px,0);text-shadow:0 0 40px rgba(255,42,31,0.5);}
+    80%{transform:translate(1px,1px);}
+  }
+
+  .hero-sub{
+    color:var(--silver);font-size:1.05rem;line-height:1.6;margin-bottom:36px;
+    max-width:440px;
+    animation:fadeUp 1s 0.6s backwards cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  .hero-actions{display:flex;gap:18px;flex-wrap:wrap;animation:fadeUp 1s 0.8s backwards cubic-bezier(.16,1,.3,1);}
+  .btn-primary{
+    background:var(--red);color:#fff;padding:16px 32px;border-radius:40px;
+    font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;
+    position:relative;overflow:hidden;transition:transform .3s, box-shadow .3s;
+    animation:btnGlow 2.8s ease-in-out infinite;
+  }
+  @keyframes btnGlow{0%,100%{box-shadow:0 0 0 rgba(225,6,0,0);}50%{box-shadow:0 8px 28px rgba(225,6,0,0.5);}}
+  .btn-primary::before{
+    content:'';position:absolute;inset:0;background:var(--red-bright);
+    transform:translateX(-100%);transition:transform .35s ease;
+  }
+  .btn-primary span{position:relative;z-index:1;}
+  .btn-primary:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 30px rgba(225,6,0,0.45);}
+  .btn-primary:hover::before{transform:translateX(0);}
+  .btn-ghost{
+    border:1px solid rgba(245,239,236,0.25);padding:16px 32px;border-radius:40px;
+    font-size:0.85rem;letter-spacing:1.5px;text-transform:uppercase;
+    transition:border-color .3s, background .3s, transform .3s;
+  }
+  .btn-ghost:hover{border-color:var(--white);background:rgba(245,239,236,0.06);transform:translateY(-3px);}
+
+  /* CAN */
+  .can-stage{
+    position:relative;width:280px;height:520px;flex-shrink:0;
+    animation:floatCan 5s ease-in-out infinite;
+  }
+  @keyframes floatCan{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-18px) rotate(2deg);}}
+  .can{
+    position:absolute;inset:0;border-radius:42px;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,0.06) 0%, transparent 12%, transparent 88%, rgba(255,255,255,0.05) 100%),
+      linear-gradient(180deg, #1d1414, #0c0808 60%, #050303);
+    border:1px solid rgba(255,80,70,0.25);
+    box-shadow:
+      0 0 80px rgba(225,6,0,0.25),
+      inset 0 0 60px rgba(0,0,0,0.6);
+    overflow:hidden;
+    animation:canPulseGlow 4s ease-in-out infinite;
+  }
+  @keyframes canPulseGlow{
+    0%,100%{box-shadow:0 0 80px rgba(225,6,0,0.25), inset 0 0 60px rgba(0,0,0,0.6);}
+    50%{box-shadow:0 0 130px rgba(225,6,0,0.45), inset 0 0 60px rgba(0,0,0,0.6);}
+  }
+  .can-liquid{
+    position:absolute;left:0;right:0;bottom:0;height:55%;
+    background:linear-gradient(180deg, var(--red-bright), var(--red-deep));
+    box-shadow:inset 0 20px 40px rgba(255,255,255,0.08);
+    animation:liquidShift 6s ease-in-out infinite;
+  }
+  @keyframes liquidShift{0%,100%{height:55%;}50%{height:58%;}}
+  .can-liquid::before{
+    content:'';position:absolute;top:-12px;left:0;width:200%;height:24px;
+    background:radial-gradient(circle at 30% 50%, rgba(255,255,255,0.5) 0 6px, transparent 7px) repeat-x;
+    background-size:40px 24px;
+    animation:waveMove 2.4s linear infinite;
+    opacity:0.5;
+  }
+  @keyframes waveMove{from{transform:translateX(0);}to{transform:translateX(-40px);}}
+  .bubble{
+    position:absolute;bottom:0;border-radius:50%;
+    background:rgba(255,255,255,0.55);
+    animation:rise 3.4s linear infinite;
+  }
+  @keyframes rise{
+    from{transform:translateY(0) scale(1);opacity:0.8;}
+    to{transform:translateY(-300px) scale(0.4);opacity:0;}
+  }
+  .can-label{
+    position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);
+    text-align:center;z-index:3;
+  }
+  .can-label .n1{font-size:1.6rem;letter-spacing:3px;color:#fff;text-shadow:0 0 18px rgba(0,0,0,0.6);}
+  .can-label .n2{font-size:0.6rem;letter-spacing:4px;color:rgba(255,255,255,0.7);margin-top:4px;}
+  .can-shine{
+    position:absolute;top:0;bottom:0;left:14%;width:18%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.02));
+    border-radius:50%;filter:blur(2px);
+    animation:shineDrift 3.5s ease-in-out infinite;
+  }
+  @keyframes shineDrift{0%,100%{left:14%;opacity:1;}50%{left:20%;opacity:0.6;}}
+  .can-ring{
+    position:absolute;left:50%;bottom:-30px;width:340px;height:80px;
+    transform:translateX(-50%);
+    background:radial-gradient(ellipse at center, rgba(225,6,0,0.45), transparent 70%);
+    filter:blur(6px);
+    animation:ringPulse 4s ease-in-out infinite;
+  }
+  @keyframes ringPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:0.9;}50%{transform:translateX(-50%) scale(1.15);opacity:0.5;}}
+
+  /* scroll cue */
+  .scroll-cue{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    font-size:0.65rem;letter-spacing:2px;color:var(--silver);text-transform:uppercase;
+    z-index:2;
+  }
+  .scroll-cue .bar{width:1px;height:36px;background:linear-gradient(to bottom, var(--red-bright), transparent);
+    animation:scrollBar 1.8s ease-in-out infinite;}
+  @keyframes scrollBar{0%{transform:scaleY(0.2);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}100%{transform:scaleY(0.2);transform-origin:bottom;}}
+
+  /* MARQUEE */
+  .marquee{
+    border-top:1px solid rgba(245,239,236,0.1);
+    border-bottom:1px solid rgba(245,239,236,0.1);
+    padding:18px 0;overflow:hidden;white-space:nowrap;background:var(--black2);
+  }
+  .marquee-track{display:inline-flex;animation:scrollX 22s linear infinite;}
+  .marquee-track span{
+    font-family:'Audiowide', sans-serif;font-size:1.1rem;letter-spacing:3px;
+    padding:0 28px;color:rgba(245,239,236,0.5);text-transform:uppercase;
+    transition:color .3s;
+  }
+  .marquee-track span.accent{
+    color:var(--red-bright);display:inline-block;
+    animation:starSpin 3s linear infinite;
+  }
+  @keyframes starSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes scrollX{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  /* SECTIONS */
+  section{padding:140px 5%;position:relative;}
+  .section-head{max-width:680px;margin:0 auto 70px;text-align:center;}
+  .tag{
+    font-size:0.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--red-bright);
+    margin-bottom:18px;display:inline-block;
+  }
+  .section-title{font-size:clamp(2.2rem,4.5vw,3.4rem);line-height:1.05;}
+  .section-title em{font-style:normal;color:var(--red-bright);font-family:'Audiowide', sans-serif;}
+
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  /* FLAVORS */
+  .flavor-grid{
+    max-width:1200px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+    perspective:1000px;
+  }
+  @media(max-width:980px){.flavor-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.flavor-grid{grid-template-columns:1fr;}}
+  .flavor-card{
+    background:var(--black2);border:1px solid rgba(245,239,236,0.08);
+    border-radius:18px;padding:30px 24px;position:relative;overflow:hidden;
+    transition:transform .25s cubic-bezier(.16,1,.3,1), border-color .4s;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .flavor-card::before{
+    content:'';position:absolute;inset:0;opacity:0;transition:opacity .4s;
+    background:radial-gradient(circle at 50% 0%, var(--glow,rgba(225,6,0,0.35)), transparent 70%);
+  }
+  .flavor-card:hover{border-color:rgba(255,80,70,0.4);}
+  .flavor-card:hover::before{opacity:1;}
+  .flavor-dot{
+    width:46px;height:46px;border-radius:50%;margin-bottom:22px;
+    background:var(--glow,var(--red));box-shadow:0 0 24px var(--glow,var(--red));
+    animation:dotBreathe 2.6s ease-in-out infinite;
+  }
+  @keyframes dotBreathe{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+  .flavor-name{font-size:1.15rem;margin-bottom:10px;letter-spacing:0.5px;}
+  .flavor-desc{font-size:0.88rem;color:var(--silver);line-height:1.55;}
+
+  /* STATS */
+  .stats-wrap{
+    max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:30px;
+    text-align:center;
+  }
+  @media(max-width:780px){.stats-wrap{grid-template-columns:repeat(2,1fr);}}
+  .stat-num{
+    font-family:'Audiowide', sans-serif;font-size:clamp(2.2rem,5vw,3.2rem);
+    color:var(--red-bright);text-shadow:0 0 30px rgba(255,42,31,0.4);
+  }
+  .stat-label{font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--silver);margin-top:10px;}
+
+  /* CTA STRIP */
+  .cta-strip{
+    background:linear-gradient(120deg, var(--red-deep), #2a0300 70%);
+    background-size:200% 200%;
+    animation:gradientShift 6s ease-in-out infinite;
+    border-radius:28px;max-width:1100px;margin:0 auto;
+    padding:70px 50px;display:flex;align-items:center;justify-content:space-between;
+    gap:30px;flex-wrap:wrap;position:relative;overflow:hidden;
+  }
+  @keyframes gradientShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+  .cta-strip::after{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(255,42,31,0.35), transparent 60%);
+    animation:radialDrift 5s ease-in-out infinite;
+  }
+  @keyframes radialDrift{0%,100%{background-position:0% 0%;}50%{background-position:20% 20%;}}
+  .cta-strip h3{font-size:clamp(1.8rem,3.5vw,2.6rem);max-width:480px;position:relative;z-index:1;}
+  .cta-strip .btn-primary{background:#fff;color:var(--red-deep);position:relative;z-index:1;}
+  .cta-strip .btn-primary::before{background:#f1e9e6;}
+
+  footer{
+    padding:60px 5% 40px;border-top:1px solid rgba(245,239,236,0.08);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+    color:var(--silver);font-size:0.82rem;
+  }
+  footer .foot-links{display:flex;gap:26px;}
+  footer .foot-links a{transition:color .25s;}
+  footer .foot-links a:hover{color:var(--red-bright);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+
+  @media(max-width:880px){
+    .hero-inner{flex-direction:column;text-align:center;}
+    .hero-copy{margin:0 auto;}
+    .hero-actions{justify-content:center;}
+    .nav-links{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+<div class="glow-cursor" id="cursorGlow"></div>
+
+<nav>
+  <div class="logo display">COCA<span>•</span>GUSSS</div>
+  <div class="nav-links">
+    <a href="#sabores">Sabores</a>
+    <a href="#numeros">Números</a>
+    <a href="#onde">Onde encontrar</a>
+  </div>
+  <a href="#onde" class="nav-cta">Encontrar loja</a>
+</nav>
+
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <div class="eyebrow mono">Lançamento 2026</div>
+      <h1 class="hero-title display">
+        <span class="line"><span>BEBA O</span></span>
+        <span class="line"><span>FUTURO</span></span>
+      </h1>
+      <p class="hero-sub">Coca Gusss é energia engarrafada: carbonatação intensa, sabor que não pede desculpa e uma identidade visual feita para quem vive no acelerador.</p>
+      <div class="hero-actions">
+        <a href="#sabores" class="btn-primary"><span>Conheça os sabores</span></a>
+        <a href="#onde" class="btn-ghost">Encontre uma loja</a>
+      </div>
+    </div>
+
+    <div class="can-stage" id="canStage">
+      <div class="can-ring"></div>
+      <div class="can">
+        <div class="can-liquid"></div>
+        <div class="can-label">
+          <div class="n1 display">GUSSS</div>
+          <div class="n2 mono">COCA GUSSS — ORIGINAL</div>
+        </div>
+        <div class="can-shine"></div>
+        <div class="bubble" style="left:30%;width:6px;height:6px;animation-delay:0s;"></div>
+        <div class="bubble" style="left:48%;width:4px;height:4px;animation-delay:0.6s;"></div>
+        <div class="bubble" style="left:62%;width:7px;height:7px;animation-delay:1.2s;"></div>
+        <div class="bubble" style="left:40%;width:5px;height:5px;animation-delay:1.8s;"></div>
+        <div class="bubble" style="left:55%;width:3px;height:3px;animation-delay:2.4s;"></div>
+        <div class="bubble" style="left:70%;width:5px;height:5px;animation-delay:0.3s;"></div>
+        <div class="bubble" style="left:25%;width:4px;height:4px;animation-delay:0.9s;"></div>
+        <div class="bubble" style="left:80%;width:3px;height:3px;animation-delay:1.5s;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue mono"><span>Rolar</span><div class="bar"></div></div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-track display">
+    <span>SABOR SEM LIMITES</span><span class="accent">★</span>
+    <span>ENERGIA PURA</span><span class="accent">★</span>
+    <span>SEMPRE GELADA</span><span class="accent">★</span>
+    <span>ZERO DESCULPAS</span><span class="accent">★</span>
+    <span>SABOR SEM LIMITES</span><span class="accent">★</span>
+    <span>ENERGIA PURA</span><span class="accent">★</span>
+    <span>SEMPRE GELADA</span><span class="accent">★</span>
+    <span>ZERO DESCULPAS</span><span class="accent">★</span>
+  </div>
+</div>
+
+<section id="sabores">
+  <div class="section-head reveal">
+    <span class="tag mono">// linha de sabores</span>
+    <h2 class="section-title">Quatro formas de <em>acelerar</em></h2>
+  </div>
+  <div class="flavor-grid">
+    <div class="flavor-card reveal tilt" style="--glow:#ff2a1f;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Original</div>
+      <div class="flavor-desc">A fórmula clássica, recarregada. Carbonatação alta e final seco.</div>
+    </div>
+    <div class="flavor-card reveal tilt" style="--glow:#9c9c9c;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Zero Açúcar</div>
+      <div class="flavor-desc">Todo o impacto do sabor, sem nenhuma gota de açúcar.</div>
+    </div>
+    <div class="flavor-card reveal tilt" style="--glow:#ff5470;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Cosmic Cherry</div>
+      <div class="flavor-desc">Cereja escura sobre a base cola. Intenso e levemente ácido.</div>
+    </div>
+    <div class="flavor-card reveal tilt" style="--glow:#7bff5a;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Electric Lime</div>
+      <div class="flavor-desc">Um corte cítrico afiado para quem gosta de contraste.</div>
+    </div>
+  </div>
+</section>
+
+<section id="numeros" style="background:var(--black2);">
+  <div class="section-head reveal">
+    <span class="tag mono">// em números</span>
+    <h2 class="section-title">Feita para <em>escalar</em></h2>
+  </div>
+  <div class="stats-wrap reveal">
+    <div>
+      <div class="stat-num" data-count="12000">0</div>
+      <div class="stat-label">Pontos de venda</div>
+    </div>
+    <div>
+      <div class="stat-num" data-count="5">0</div>
+      <div class="stat-label">Sabores na linha</div>
+    </div>
+    <div>
+      <div class="stat-num" data-count="330">0</div>
+      <div class="stat-label">ml por lata</div>
+    </div>
+    <div>
+      <div class="stat-num" data-count="0">0</div>
+      <div class="stat-label">g de açúcar (Zero)</div>
+    </div>
+  </div>
+</section>
+
+<section id="onde">
+  <div class="cta-strip reveal">
+    <h3 class="display">Pronto pra sentir a diferença?</h3>
+    <a href="#" class="btn-primary"><span>Encontrar loja mais próxima</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="logo display">COCA<span>•</span>GUSSS</div>
+  <div class="foot-links mono">
+    <a href="#sabores">Sabores</a>
+    <a href="#numeros">Números</a>
+    <a href="#onde">Lojas</a>
+  </div>
+  <div class="mono">© 2026 Coca Gusss. Marca fictícia para fins de demonstração.</div>
+</footer>
+
+<script>
+  // cursor glow
+  const glow = document.getElementById('cursorGlow');
+  window.addEventListener('mousemove', e=>{
+    glow.style.left = e.clientX+'px';
+    glow.style.top = e.clientY+'px';
+  });
+
+  // can follows cursor slightly (parallax tilt)
+  const canStage = document.getElementById('canStage');
+  window.addEventListener('mousemove', e=>{
+    const x = (e.clientX/window.innerWidth - 0.5) * 16;
+    const y = (e.clientY/window.innerHeight - 0.5) * 16;
+    canStage.style.setProperty('--tiltX', y+'deg');
+    canStage.style.setProperty('--tiltY', x+'deg');
+    canStage.style.transform = `rotate(${x*0.2}deg) translate(${x*0.3}px, ${y*0.3}px)`;
+  });
+
+  // scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.classList.add('in');
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:0.2});
+  reveals.forEach(el=>io.observe(el));
+
+  // 3D tilt on flavor cards
+  document.querySelectorAll('.tilt').forEach(card=>{
+    card.addEventListener('mousemove', e=>{
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left)/r.width - 0.5;
+      const py = (e.clientY - r.top)/r.height - 0.5;
+      card.style.transform = `translateY(-10px) rotateX(${py*-12}deg) rotateY(${px*12}deg)`;
+    });
+    card.addEventListener('mouseleave', ()=>{
+      card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+    });
+  });
+
+  // parallax blobs on scroll
+  window.addEventListener('scroll', ()=>{
+    const y = window.scrollY;
+    document.querySelector('.blob1').style.transform = `translateY(${y*0.15}px)`;
+    document.querySelector('.blob2').style.transform = `translateY(${-y*0.1}px)`;
+    document.querySelector('.blob3').style.transform = `translateY(${y*0.08}px)`;
+  });
+
+  // counters
+  const counters = document.querySelectorAll('.stat-num');
+  const counterIO = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        const el = en.target;
+        const target = parseInt(el.dataset.count,10);
+        const duration = 1400;
+        const start = performance.now();
+        function tick(now){
+          const p = Math.min((now-start)/duration,1);
+          const val = Math.floor(p*target);
+          el.textContent = val.toLocaleString('pt-BR');
+          if(p<1) requestAnimationFrame(tick);
+          else el.textContent = target.toLocaleString('pt-BR');
+        }
+        requestAnimationFrame(tick);
+        counterIO.unobserve(el);
+      }
+    });
+  },{threshold:0.5});
+  counters.forEach(el=>counterIO.observe(el));
+</script>
+
+</body>
+</html>
