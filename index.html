@@ -462,4 +462,163 @@
 </section>
 
 <div class="marquee">
-  <div class="marqu
+  <div class="marquee-track display">
+    <span>SABOR SEM LIMITES</span><span class="accent">★</span>
+    <span>ENERGIA PURA</span><span class="accent">★</span>
+    <span>SEMPRE GELADA</span><span class="accent">★</span>
+    <span>ZERO DESCULPAS</span><span class="accent">★</span>
+    <span>SABOR SEM LIMITES</span><span class="accent">★</span>
+    <span>ENERGIA PURA</span><span class="accent">★</span>
+    <span>SEMPRE GELADA</span><span class="accent">★</span>
+    <span>ZERO DESCULPAS</span><span class="accent">★</span>
+  </div>
+</div>
+
+<section id="sabores">
+  <div class="section-head reveal">
+    <span class="tag mono">// linha de sabores</span>
+    <h2 class="section-title">Quatro formas de <em>acelerar</em></h2>
+  </div>
+  <div class="flavor-grid">
+    <div class="flavor-card reveal tilt" style="--glow:#ff2a1f;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Original</div>
+      <div class="flavor-desc">A fórmula clássica, recarregada. Carbonatação alta e final seco.</div>
+    </div>
+    <div class="flavor-card reveal tilt" style="--glow:#9c9c9c;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Zero Açúcar</div>
+      <div class="flavor-desc">Todo o impacto do sabor, sem nenhuma gota de açúcar.</div>
+    </div>
+    <div class="flavor-card reveal tilt" style="--glow:#ff5470;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Cosmic Cherry</div>
+      <div class="flavor-desc">Cereja escura sobre a base cola. Intenso e levemente ácido.</div>
+    </div>
+    <div class="flavor-card reveal tilt" style="--glow:#7bff5a;">
+      <div class="flavor-dot"></div>
+      <div class="flavor-name">Electric Lime</div>
+      <div class="flavor-desc">Um corte cítrico afiado para quem gosta de contraste.</div>
+    </div>
+  </div>
+</section>
+
+<section id="numeros" style="background:var(--black2);">
+  <div class="section-head reveal">
+    <span class="tag mono">// em números</span>
+    <h2 class="section-title">Feita para <em>escalar</em></h2>
+  </div>
+  <div class="stats-wrap reveal">
+    <div>
+      <div class="stat-num" data-count="12000">0</div>
+      <div class="stat-label">Pontos de venda</div>
+    </div>
+    <div>
+      <div class="stat-num" data-count="5">0</div>
+      <div class="stat-label">Sabores na linha</div>
+    </div>
+    <div>
+      <div class="stat-num" data-count="330">0</div>
+      <div class="stat-label">ml por lata</div>
+    </div>
+    <div>
+      <div class="stat-num" data-count="0">0</div>
+      <div class="stat-label">g de açúcar (Zero)</div>
+    </div>
+  </div>
+</section>
+
+<section id="onde">
+  <div class="cta-strip reveal">
+    <h3 class="display">Pronto pra sentir a diferença?</h3>
+    <a href="#" class="btn-primary"><span>Encontrar loja mais próxima</span></a>
+  </div>
+</section>
+
+<footer>
+  <div class="logo display">COCA<span>•</span>GUSSS</div>
+  <div class="foot-links mono">
+    <a href="#sabores">Sabores</a>
+    <a href="#numeros">Números</a>
+    <a href="#onde">Lojas</a>
+  </div>
+  <div class="mono">© 2026 Coca Gusss. Marca fictícia para fins de demonstração.</div>
+</footer>
+
+<script>
+  // cursor glow
+  const glow = document.getElementById('cursorGlow');
+  window.addEventListener('mousemove', e=>{
+    glow.style.left = e.clientX+'px';
+    glow.style.top = e.clientY+'px';
+  });
+
+  // can follows cursor slightly (parallax tilt)
+  const canStage = document.getElementById('canStage');
+  window.addEventListener('mousemove', e=>{
+    const x = (e.clientX/window.innerWidth - 0.5) * 16;
+    const y = (e.clientY/window.innerHeight - 0.5) * 16;
+    canStage.style.setProperty('--tiltX', y+'deg');
+    canStage.style.setProperty('--tiltY', x+'deg');
+    canStage.style.transform = `rotate(${x*0.2}deg) translate(${x*0.3}px, ${y*0.3}px)`;
+  });
+
+  // scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.classList.add('in');
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:0.2});
+  reveals.forEach(el=>io.observe(el));
+
+  // 3D tilt on flavor cards
+  document.querySelectorAll('.tilt').forEach(card=>{
+    card.addEventListener('mousemove', e=>{
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left)/r.width - 0.5;
+      const py = (e.clientY - r.top)/r.height - 0.5;
+      card.style.transform = `translateY(-10px) rotateX(${py*-12}deg) rotateY(${px*12}deg)`;
+    });
+    card.addEventListener('mouseleave', ()=>{
+      card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+    });
+  });
+
+  // parallax blobs on scroll
+  window.addEventListener('scroll', ()=>{
+    const y = window.scrollY;
+    document.querySelector('.blob1').style.transform = `translateY(${y*0.15}px)`;
+    document.querySelector('.blob2').style.transform = `translateY(${-y*0.1}px)`;
+    document.querySelector('.blob3').style.transform = `translateY(${y*0.08}px)`;
+  });
+
+  // counters
+  const counters = document.querySelectorAll('.stat-num');
+  const counterIO = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        const el = en.target;
+        const target = parseInt(el.dataset.count,10);
+        const duration = 1400;
+        const start = performance.now();
+        function tick(now){
+          const p = Math.min((now-start)/duration,1);
+          const val = Math.floor(p*target);
+          el.textContent = val.toLocaleString('pt-BR');
+          if(p<1) requestAnimationFrame(tick);
+          else el.textContent = target.toLocaleString('pt-BR');
+        }
+        requestAnimationFrame(tick);
+        counterIO.unobserve(el);
+      }
+    });
+  },{threshold:0.5});
+  counters.forEach(el=>counterIO.observe(el));
+</script>
+
+</body>
+</html>
